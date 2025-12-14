@@ -1,0 +1,20 @@
+# .gitignore
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+build/
+develop-eggs/
+dist/
+.ipynb_checkpoints/
+data/*.bsp
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Skyfield data
+data/*.bsp
+data/*.txt

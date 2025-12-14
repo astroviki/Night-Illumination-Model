@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: illumination_model
+Version: 0.1.0
+Summary: Real-time outdoor illumination modeling
+Author-email: Viktor Votruba <votruba@physics.muni.cz>
+Requires-Python: >=3.10
+Requires-Dist: skyfield
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: matplotlib
