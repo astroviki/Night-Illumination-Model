@@ -1,31 +1,33 @@
+
 # Real-time Outdoor Illumination Model (Python)
 
-**Vědecký model pro výpočet venkovního osvětlení (Slunce, Měsíc, Hvězdy) a atmosférické extinkce v reálném čase.**
+**Scientific model for calculating outdoor illumination (Sun, Moon, Stars) and atmospheric extinction in real-time.**
 
-Tento projekt je moderní Python implementace algoritmů pro simulaci osvětlení, založená primárně na práci *C. Undeger (2009): Modeling Daytime and Night Illumination*, ale s významnými modernizacemi v oblasti astrometrie a fotometrie.
+[cite_start]This project is a modern Python implementation of illumination simulation algorithms[cite: 1], primarily based on the work *C. Undeger (2009): Modeling Daytime and Night Illumination*, but with significant modernizations in astrometry and photometry.
 
-## 🚀 Klíčové vlastnosti
+## 🚀 Key Features
 
-Oproti původnímu článku (2009) přináší tento model řadu vylepšení:
+Compared to the original paper (2009), this model introduces several improvements:
 
-* **Přesná Astrometrie:** Místo aproximačních řad využívá knihovnu `Skyfield` a efemeridy NASA JPL DE421 (přesnost na zlomky úhlové vteřiny).
-* **Fyzikální model Měsíce:**
-    * **3D Fázový úhel:** Přesný vektorový výpočet fáze.
-    * **Earthshine (Popelavý svit):** Implementován model odrazu Země -> Měsíc, což zajišťuje realistické (nenulové) osvětlení i při Novu.
-    * **Opposition Surge:** Nelineární nárůst jasu při úplňku.
-* **Atmosférický Model:**
-    * **Robustní Air Mass:** Použití Kasten-Young/Rozenberg modelů, které nedivergují na horizontu (zvládá západ slunce).
-    * **Proměnná Turbidita:** Možnost simulovat různé počasí (od hor po hustou mlhu).
-* **Hvězdné pozadí:** Dynamický model hvězd, které podléhají atmosférické extinkci (v mlze "zhasnou").
+* **Precise Astrometry:** Uses `Skyfield` library and NASA JPL DE421 ephemerides instead of approximation series, ensuring sub-arcsecond precision.
+* **Physical Moon Model:**
+    * [cite_start]**3D Phase Angle:** Accurate vector-based phase calculation[cite: 1, 11].
+    * **Earthshine:** Implements the reflection Earth -> Moon -> Earth, ensuring realistic (non-zero) illumination even during New Moon.
+    * [cite_start]**Opposition Surge:** Non-linear brightness surge at Full Moon[cite: 11].
+* **Atmospheric Model:**
+    * [cite_start]**Robust Air Mass:** Uses Kasten-Young/Rozenberg models that do not diverge at the horizon (handles sunsets correctly)[cite: 16].
+    * [cite_start]**Variable Turbidity:** Ability to simulate various weather conditions (from clear mountains to dense fog)[cite: 16].
+* [cite_start]**Stellar Background:** Dynamic star model subject to atmospheric extinction (stars "disappear" in fog)[cite: 1, 3].
 
-## 📦 Instalace
+## 📦 Installation
 
-Doporučujeme použít virtuální prostředí:
+We recommend using a virtual environment:
 
 ```bash
-# Vytvoření prostředí
+# Create environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Instalace projektu v editovatelném módu
+# Install project in editable mode
 pip install -e .
+

@@ -3,35 +3,35 @@ from skyfield.api import load, wgs84, Loader
 from skyfield.timelib import Time
 import numpy as np
 
-# Cesta pro stahování astronomických dat (ephemeridy)
+# Path for downloading astronomical data (ephemeris)
 DATA_DIR = os.path.join(os.path.dirname(__file__), '../../../data')
 load = Loader(DATA_DIR)
 
 class ObserverLocation:
     """
-    Reprezentuje pozorovatele na povrchu Země.
+    Represents an observer on the Earth's surface
     """
     def __init__(self, latitude: float, longitude: float, elevation_m: float = 0.0):
         """
-        :param latitude: Zeměpisná šířka (stupně, +N)
-        :param longitude: Zeměpisná délka (stupně, +E)
-        :param elevation_m: Nadmořská výška v metrech
+        :param latitude: Geographic latitude (degrees, +N)
+        :param longitude: Geographic longitude (degrees, +E)
+        :param elevation_m:  Elevation above sea level  in meters
         """
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation_m
-        # Vytvoření objektu pozorovatele v systému WGS84
+        # Create observer object in WGS84 system
         self.geo_loc = wgs84.latlon(latitude, longitude, elevation_m)
 
 class AstrometryEngine:
     """
-    Zajišťuje výpočty polohy nebeských těles (Slunce, Měsíc) pro daný čas a místo.
-    Nahrazuje aproximační Algoritmy 1, 2 a 3 z původního článku robustním řešením.
+    Handles calculation of celestial body positions (Sun, Moon) for a given time and location.
+    Replaces approximation Algorithms 1, 2, and 3 from the original paper with a robust solution.
     """
     def __init__(self):
-        # Načtení efemerid DE421 (zahrnuje planety, Slunce, Měsíc)
-        # Pokud soubor neexistuje, Skyfield ho stáhne.
-        print("Načítám efemeridy DE421...")
+        # Load DE421 ephemeris (includes planets, Sun, Moon)
+        # If the file does not exist, Skyfield will download it.
+        print("Loading DE421 ephemeris...")
         self.planets = load('de421.bsp')
         self.earth = self.planets['earth']
         self.sun = self.planets['sun']
@@ -39,18 +39,18 @@ class AstrometryEngine:
         self.ts = load.timescale()
 
     def get_current_time(self):
-        """Vrátí aktuální čas Skyfield."""
+        """Returns current Skyfield time."""
         return self.ts.now()
 
     def get_time_from_utc(self, year, month, day, hour, minute, second):
-        """Vytvoří časový objekt z UTC data."""
+        """Creates a time object from UTC date components."""
         return self.ts.utc(year, month, day, hour, minute, second)
 
     def calculate_sun_position(self, observer: ObserverLocation, time: Time):
         """
-        Vypočte polohu Slunce v lokálních souřadnicích (Azimut, Elevace).
+        Calculates Sun's position in local coordinates (Azimuth, Elevation).
         
-        Odpovídá sekci 3.2 článku[cite: 53], ale s vyšší přesností.
+        Corresponds to Section 3.2 of the paper but with higher precision.
         
         :return: (altitude_degrees, azimuth_degrees, distance_au)
         """
@@ -63,9 +63,9 @@ class AstrometryEngine:
 
     def calculate_moon_position(self, observer: ObserverLocation, time: Time):
         """
-        Vypočte polohu Měsíce v lokálních souřadnicích.
+        Calculates Moon's position in local coordinates.
         
-        Odpovídá sekci 3.3 článku[cite: 82].
+        Corresponds to Section 3.3 of the paper.
         
         :return: (altitude_degrees, azimuth_degrees, distance_km)
         """
@@ -77,7 +77,7 @@ class AstrometryEngine:
         return alt.degrees, az.degrees, distance.km
 
     def get_sun_earth_distance_au(self, time: Time):
-        """Vrátí vzdálenost Země-Slunce v AU pro daný čas."""
+        """Return distance Earth-Sun for given time."""
         earth_pos = self.earth.at(time).position.au
         sun_pos = self.sun.at(time).position.au
         return np.linalg.norm(np.array(earth_pos) - np.array(sun_pos))

@@ -3,15 +3,13 @@ from skyfield.timelib import Time
 
 class SunModel:
     """
-    Fyzikální model Slunce jako světelného zdroje.
-    Implementuje výpočet intenzity světla nad atmosférou (Extraterrestrial Illuminance).
+    Physical model of the Sun as a light source.
+    Implements calculation of Extraterrestrial Illuminance.
     """
-    
-    # Solární konstanta v luxech (převzato z článku, sekce 4.1)
-    # Undeger uvádí E_sc = 127 500 lux
+    # Solar constant in Lux (taken from Undeger 2009, Section 4.1)
     SOLAR_CONSTANT_LUX = 127500.0
     
-    # Excentricita oběžné dráhy Země
+    # Eccentricity of Earth's orbit
     ECCENTRICITY = 0.01672
 
     def __init__(self):
@@ -19,18 +17,18 @@ class SunModel:
 
     def get_extraterrestrial_illuminance(self, time: Time) -> float:
         """
-        Vypočte intenzitu slunečního záření těsně nad atmosférou (E_ST).
-        Zohledňuje měnící se vzdálenost Země od Slunce během roku.
+        Calculates solar illuminance just above the atmosphere (E_ST).
+        Accounts for the varying Earth-Sun distance throughout the year.
         
-        Vychází z rovnice (9) v článku Undeger (2009).
+        Based on Equation (9) in Undeger (2009).
         
-        :param time: Skyfield Time objekt
-        :return: Osvětlenost v luxech (lx)
+        :param time: Skyfield Time object
+        :return: Illuminance in lux (lx)
         """
-        # Získání Juliánského data (tt = Terrestrial Time)
+        # Get Julian Date (tt = Terrestrial Time)
         jd = time.tt
         
-        # Implementace rovnice (9) 
+        # Implementation of Equation (9)
         # E_ST = E_SC * ((1 + e * cos(2pi(JD-2)/365.2))^2) / (1-e^2)
         term = np.cos(2 * np.pi * (jd - 2) / 365.2)
         numerator = (1 + self.ECCENTRICITY * term)**2

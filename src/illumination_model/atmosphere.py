@@ -2,21 +2,20 @@ import numpy as np
 
 class AtmosphereModel:
     """
-    Modeluje průchod světla atmosférou Země.
-    Implementuje výpočet extinkce (tlumení) a optické hmoty.
+    Models light transmission through Earth's atmosphere.
+    Implements extinction and optical air mass calculations.
     
-    Založeno na sekci 5 článku Undeger (2009).
+    Based on Section 5 of Undeger (2009).
     """
 
-    # Vlnová délka, pro kterou počítáme osvětlení (střed viditelného spektra)
-    # 555 nm je vrchol citlivosti lidského oka (fotopické vidění)
+    # Center of visible spectrum (photopic vision peak)
     WAVELENGTH_UM = 0.555 
     
-    # Rayleighův koeficient pro standardní atmosféru
+    # Rayleigh coefficient for standard atmosphere
     # C_rayleigh = 0.008735 * lambda^(-4.08)
     C_RAYLEIGH = 0.008735 * (WAVELENGTH_UM ** -4.08)
     
-    # Absorpční koeficient ozónu (považován za konstantu)
+    # Ozone absorption coefficient (assumed constant)
     C_OZONE = 0.02975
 
     def __init__(self):
@@ -24,19 +23,19 @@ class AtmosphereModel:
 
     def _calculate_air_mass(self, altitude_deg: float) -> float:
         """
-        Vypočte relativní optickou vzdušnou hmotu (Air Mass).
+        Calculates relative optical air mass (m).
         
-        m = 1.0 znamená Slunce přímo v zenitu (kolmo).
-        m > 1.0 znamená Slunce níže nad obzorem (delší průchod atmosférou).
+        m = 1.0 means Sun is at Zenith (perpendicular).
+        m > 1.0 means Sun is lower (longer path through atmosphere).
         
-        Používá robustní Kasten-Youngovu aproximaci (1989), která odpovídá
-        formě rovnice 18 v článku a nediverguje na horizontu.
+        Uses robust Kasten-Young approximation (1989), which prevents
+        singularity at the horizon (unlike simple 1/sin(a)).
         
-        :param altitude_deg: Výška tělesa nad obzorem ve stupních.
+        :param altitude_deg: Object altitude in degrees.
         """
-        # Ošetření záporné výšky (těleso pod obzorem)
+        # Negative altitude (body bellow horizon)
         if altitude_deg < -0.5:
-            return float('inf') # Světlo neprojde skrz Zemi
+            return float('inf')
             
         # Kasten-Young vzorec: 1 / (sin(a) + 0.50572 * (a + 6.07995)^-1.6364)
         # Použijeme raději tvar z článku (Eq 18), pokud je čitelný, 
@@ -58,30 +57,31 @@ class AtmosphereModel:
 
     def calculate_extinction_coefficient(self, turbidity: float) -> float:
         """
-        Vypočte celkový extinkční koeficient C dle rovnice 17.
+        Calculates total extinction coefficient C (Eq 17).
         
-        :param turbidity: Turbidita (Linke Turbidity Factor).
-                          2.0 = Velmi čistá obloha (hory)
-                          3.0 - 5.0 = Čistá až mírně zakalená obloha (nížiny)
-                          10+ = Lehká mlha / silný opar
+        :param turbidity: Linke Turbidity Factor.
+                          2.0 = Very clear (Mountains)
+                          3.0 - 5.0 = Clear to Light Haze
+                          10+ = Haze / Fog
+
         """
-        # 1. Aerosolový rozptyl (Mie) - závislý na turbiditě
+        # 1. Aerosol scattering (Mie) - depends on turbidity
         # Eq 17: C_aerosol = (0.04608 * T - 0.04586) * lambda^(-1.3)
         c_aerosol = (0.04608 * turbidity - 0.04586) * (self.WAVELENGTH_UM ** -1.3)
         
-        # Celková extinkce = Rayleigh + Aerosol + Ozone
+        # Total extinction = Rayleigh + Aerosol + Ozone
         c_total = self.C_RAYLEIGH + c_aerosol + self.C_OZONE
         
         return c_total
 
     def get_transmittance(self, altitude_deg: float, turbidity: float = 3.0) -> float:
         """
-        Vypočte propustnost atmosféry (hodnota 0.0 až 1.0).
-        Aplikuje Beer-Lambertův zákon (Eq 15).
+        Calculates atmospheric transmittance (0.0 to 1.0).
+        Applies Beer-Lambert law (Eq 15).
         
-        :param altitude_deg: Výška zdroje nad obzorem.
-        :param turbidity: Znečištění atmosféry (default 3.0 pro běžný den).
-        :return: Koeficient propustnosti (násobte jím extraterestrickou intenzitu).
+        :param altitude_deg: Source altitude above horizon.
+        :param turbidity: Atmospheric pollution (default 3.0).
+        :return: Transmittance coefficient.
         """
         if altitude_deg <= 0.0:
             return 0.0
@@ -97,18 +97,18 @@ class AtmosphereModel:
     @staticmethod
     def visibility_to_turbidity(visibility_km: float) -> float:
         """
-        Pomocná funkce pro odhad turbidity z viditelnosti (Meteorological Range).
-        Aproximace grafu Figure 3 z článku.
+        Helper to estimate turbidity from meteorological visibility range.
+        Approximation of Figure 3 in the paper.
         """
         if visibility_km > 100:
-            return 2.0  # Velmi čistý vzduch
+            return 2.0  # Very clear
         elif visibility_km > 20:
-            return 3.0  # Čisto
+            return 3.0  # Clear
         elif visibility_km > 10:
-            return 4.0  # Lehký opar
+            return 4.0  # Light haze
         elif visibility_km > 5:
-            return 7.0  # Opar
+            return 7.0  # Haze
         elif visibility_km > 2:
-            return 15.0 # Silný opar / mlha
+            return 15.0 # Strong haze / Fog
         else:
-            return 30.0 # Hustá mlha
+            return 30.0 # Dense Fog

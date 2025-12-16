@@ -1,5 +1,6 @@
 # .gitignore
 # Python
+.token.txt
 __pycache__/
 *.pyc
 *.pyo
