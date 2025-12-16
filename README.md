@@ -31,3 +31,14 @@ source .venv/bin/activate
 # Install project in editable mode
 pip install -e .
 
+## 📚 References
+
+- Undeger, C. (2009). Modeling Daytime and Night Illumination. Middle East Technical University.
+
+- JPL DE421 Ephemerides: NASA Jet Propulsion Laboratory.
+
+- Kasten, F. and Young, A. T. (1989). Revised optical air mass tables and approximation formula.
+
+##📄 License
+
+MIT License
