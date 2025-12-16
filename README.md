@@ -27,10 +27,10 @@ We recommend using a virtual environment:
 # Create environment
 python3 -m venv .venv
 source .venv/bin/activate
-```
 
 # Install project in editable mode
 pip install -e .
+```
 
 ## 📚 References
 
